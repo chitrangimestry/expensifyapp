@@ -56,8 +56,7 @@ const TripExpensesScreen = (props: any) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.mainViewContainer}>
         <View style={styles.headerContainer}>
-          
-          <View style={ styles.headerText}>
+          <View style={styles.headerText}>
             <Text style={[{color: colors.heading}, styles.headerTextPlace]}>
               {place}
             </Text>
@@ -123,7 +122,7 @@ const styles = StyleSheet.create({
     // marginTop: 5,
   },
   headerText: {
-    marginTop : -38,
+    marginTop: -38,
   },
   headerTextPlace: {
     fontSize: 26,

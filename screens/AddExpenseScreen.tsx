@@ -104,6 +104,7 @@ export default AddExpenseScreen;
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
+    backgroundColor: '#ffffff',
   },
   container: {
     justifyContent: 'space-between',
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
   inputtextField: {
     padding: 10,
     margin: 6,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f3f3f3ff',
     borderRadius: 20,
     marginBottom: 16,
   },

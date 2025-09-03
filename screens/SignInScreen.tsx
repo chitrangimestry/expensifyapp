@@ -1,5 +1,8 @@
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -12,17 +15,16 @@ import {colors} from '../themes';
 // import BackButton from '../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
 
-const AddTripScreen = () => {
-  const [place, setPlace] = useState('');
-  const [country, setCountry] = useState('');
+const SignInScreen = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
-  const handleAddTrip = () => {
-    if (place && country) {
+  const handleSubmit = () => {
+    if (email && password) {
       // Logic to add trip
-      if (navigation.canGoBack()) {
       navigation.goBack();
-    }
+      navigation.navigate('Home' as never);
     } else {
       //throw error
     }
@@ -39,37 +41,45 @@ const AddTripScreen = () => {
               Add Trip
             </Text>
           </View> */}
-          <View style={styles.imageContainer}>
-            <Image
-              style={styles.addTripImg}
-              source={require('../assets/images/Hotel-Booking-cuate.png')}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
-              Where on Earth
-            </Text>
-            <TextInput
-              value={place}
-              onChangeText={value => setPlace(value)}
-              style={styles.inputtextField}
-            />
-            <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
-              Which Country?
-            </Text>
-            <TextInput
-              value={country}
-              onChangeText={value => setCountry(value)}
-              style={styles.inputtextField}
-            />
-          </View>
+          <KeyboardAvoidingView behavior={Platform.OS === 'android' ? 'padding' : 'height'} enabled keyboardVerticalOffset={100}>
+            <ScrollView keyboardShouldPersistTaps="handled" >
+              <View style={styles.imageContainer}>
+                <Image
+                  style={styles.addTripImg}
+                  source={require('../assets/images/Sign-in-bro.png')}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
+                  Email
+                </Text>
+                <TextInput
+                  value={email}
+                  onChangeText={value => setEmail(value)}
+                  style={styles.inputtextField}
+                />
+                <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
+                  Password
+                </Text>
+                <TextInput
+                  value={password}
+                  secureTextEntry
+                  onChangeText={value => setPassword(value)}
+                  style={styles.inputtextField}
+                />
+                <TouchableOpacity style={styles.forgotPasswordTxt}>
+                  <Text>Forgot Password?</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
 
         <View>
           <TouchableOpacity
-            onPress={handleAddTrip}
+            onPress={handleSubmit}
             style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
-            <Text style={styles.addTripBtnText}>Add Trip</Text>
+            <Text style={styles.addTripBtnText}>Sign In</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -77,9 +87,10 @@ const AddTripScreen = () => {
   );
 };
 
-export default AddTripScreen;
+export default SignInScreen;
 
 const styles = StyleSheet.create({
+ 
   mainContainer: {
     flex: 1,
     backgroundColor: '#ffffff',
@@ -137,5 +148,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  forgotPasswordTxt: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
 });
