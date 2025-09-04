@@ -15,18 +15,27 @@ import {colors} from '../themes';
 // import BackButton from '../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
 
+import Snackbar from 'react-native-snackbar';
+import {createUserWithEmailAndPassword} from 'firebase/auth';
+import {auth} from '../config/firebase.config';
+
 const SignUpScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (email && password) {
       // Logic to add trip
-      navigation.goBack();
+      await createUserWithEmailAndPassword(auth, email, password);
       navigation.navigate('Home' as never);
     } else {
       //throw error
+      Snackbar.show({
+        text: 'Email and Password are required',
+        duration: Snackbar.LENGTH_SHORT,
+        backgroundColor: 'red',
+      });
     }
   };
   return (

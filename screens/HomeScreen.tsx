@@ -11,7 +11,9 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../themes';
 import randomImage from '../assets/images/RandomImage';
 import EmptyList from '../components/EmptyList';
-import { useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+import {signOut} from 'firebase/auth';
+import {auth} from '../config/firebase.config';
 const HomeScreen = () => {
   const trips = [
     {
@@ -67,13 +69,20 @@ const HomeScreen = () => {
   ];
   const navigation = useNavigation();
 
+  const handleLogout = async () => {
+    await signOut(auth);
+    console.log('Signed out successfully');
+    navigation.navigate('Welcome' as never);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainView}>
         <Text style={[styles.logoText, {color: colors.heading}]}>
           Expensify
         </Text>
-        <TouchableOpacity style={styles.logoutButton}>
+        <Text style={styles.emailText}>{auth.currentUser?.email}</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Text>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -108,7 +117,9 @@ const HomeScreen = () => {
             renderItem={({item}) => {
               return (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('TripExpenses' as never, item)}
+                  onPress={() =>
+                    navigation.navigate('TripExpenses' as never, item)
+                  }
                   style={styles.tripContainerButton}>
                   <View>
                     <Image source={randomImage()} style={styles.tripImg} />
@@ -142,6 +153,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 8,
   },
+  emailText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginLeft: 30,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+  },
   logoText: {
     fontSize: 26,
     fontWeight: 'bold',
@@ -151,7 +169,7 @@ const styles = StyleSheet.create({
   logoutButton: {
     padding: 10,
     paddingHorizontal: 10,
-    backgroundColor: 'white',
+    backgroundColor: '#e8e8e8ff',
     borderColor: 'gray',
     borderRadius: 50,
   },

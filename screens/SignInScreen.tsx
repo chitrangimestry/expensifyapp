@@ -14,19 +14,44 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../themes';
 // import BackButton from '../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
+import Snackbar from 'react-native-snackbar';
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import {auth} from '../config/firebase.config';
+import {useDispatch, useSelector} from 'react-redux';
+import {setUserLoading} from '../redux/slices/userSlice';
+import Loading from '../components/Loading';
 
 const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
+  const {loading} = useSelector(state => state.user);
 
-  const handleSubmit = () => {
+  const dispatch = useDispatch();
+
+  const handleSubmit = async () => {
     if (email && password) {
       // Logic to add trip
-      navigation.goBack();
-      navigation.navigate('Home' as never);
+      try {
+        dispatch(setUserLoading(true));
+        await signInWithEmailAndPassword(auth, email, password);
+        dispatch(setUserLoading(false));
+        navigation.navigate('Home');
+      } catch (error) {
+        dispatch(setUserLoading(false));
+        Snackbar.show({
+          text: error.message,
+          duration: Snackbar.LENGTH_SHORT,
+          backgroundColor: 'red',
+        });
+      }
     } else {
       //throw error
+      Snackbar.show({
+        text: 'Email and Password are required',
+        duration: Snackbar.LENGTH_SHORT,
+        backgroundColor: 'red',
+      });
     }
   };
   return (
@@ -41,8 +66,11 @@ const SignInScreen = () => {
               Add Trip
             </Text>
           </View> */}
-          <KeyboardAvoidingView behavior={Platform.OS === 'android' ? 'padding' : 'height'} enabled keyboardVerticalOffset={100}>
-            <ScrollView keyboardShouldPersistTaps="handled" >
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'android' ? 'padding' : 'height'}
+            enabled
+            keyboardVerticalOffset={150}>
+            <ScrollView keyboardShouldPersistTaps="handled">
               <View style={styles.imageContainer}>
                 <Image
                   style={styles.addTripImg}
@@ -76,11 +104,15 @@ const SignInScreen = () => {
         </View>
 
         <View>
-          <TouchableOpacity
-            onPress={handleSubmit}
-            style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
-            <Text style={styles.addTripBtnText}>Sign In</Text>
-          </TouchableOpacity>
+          {loading ? (
+            <Loading />
+          ) : (
+            <TouchableOpacity
+              onPress={handleSubmit}
+              style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
+              <Text style={styles.addTripBtnText}>Sign In</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -90,7 +122,6 @@ const SignInScreen = () => {
 export default SignInScreen;
 
 const styles = StyleSheet.create({
- 
   mainContainer: {
     flex: 1,
     backgroundColor: '#ffffff',
