@@ -25,7 +25,9 @@ const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
-  const {loading} = useSelector(state => state.user);
+  const {userLoading} = useSelector(state => state.user);
+  // const [loading, setLoading] = useState(userLoading);
+  console.log('Loading in SignInScreen: ', userLoading);
 
   const dispatch = useDispatch();
 
@@ -104,7 +106,7 @@ const SignInScreen = () => {
         </View>
 
         <View>
-          {loading ? (
+          {userLoading ? (
             <Loading />
           ) : (
             <TouchableOpacity

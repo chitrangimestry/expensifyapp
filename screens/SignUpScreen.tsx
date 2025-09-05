@@ -18,17 +18,34 @@ import {useNavigation} from '@react-navigation/native';
 import Snackbar from 'react-native-snackbar';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import {auth} from '../config/firebase.config';
+import {useDispatch, useSelector} from 'react-redux';
+import {setUserLoading} from '../redux/slices/userSlice';
+import Loading from '../components/Loading';
 
 const SignUpScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
+  const {userLoading} = useSelector(state => state.user);
   const handleSubmit = async () => {
     if (email && password) {
       // Logic to add trip
-      await createUserWithEmailAndPassword(auth, email, password);
       navigation.navigate('Home' as never);
+      try {
+        dispatch(setUserLoading(true));
+        await createUserWithEmailAndPassword(auth, email, password);
+        dispatch(setUserLoading(false));
+        navigation.navigate('Home');
+      } catch (error) {
+        dispatch(setUserLoading(false));
+        Snackbar.show({
+          text: error.message,
+          duration: Snackbar.LENGTH_SHORT,
+          backgroundColor: 'red',
+        });
+      }
     } else {
       //throw error
       Snackbar.show({
@@ -85,11 +102,15 @@ const SignUpScreen = () => {
         </View>
 
         <View>
-          <TouchableOpacity
-            onPress={handleSubmit}
-            style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
-            <Text style={styles.addTripBtnText}>Sign Up</Text>
-          </TouchableOpacity>
+          {userLoading ? (
+            <Loading />
+          ) : (
+            <TouchableOpacity
+              onPress={handleSubmit}
+              style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
+              <Text style={styles.addTripBtnText}>Sign Up</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>

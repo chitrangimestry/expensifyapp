@@ -5,7 +5,7 @@ import {colors} from '../themes';
 const Loading = () => {
   return (
     <View style={styles.loaderContainer}>
-      <ActivityIndicator size="large" color={colors.button} />
+      <ActivityIndicator size="large" color={colors.button}/>
     </View>
   );
 };
@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
   loaderContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingVertical: 20,
+    alignItems: 'center',
+    padding: 10,
   },
 });

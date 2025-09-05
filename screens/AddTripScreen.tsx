@@ -11,20 +11,38 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../themes';
 // import BackButton from '../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
+import Loading from '../components/Loading';
+import Snackbar from 'react-native-snackbar';
+import {addDoc} from 'firebase/firestore';
+import {tripRef} from '../config/firebase.config';
+import {useSelector} from 'react-redux';
 
 const AddTripScreen = () => {
   const [place, setPlace] = useState('');
   const [country, setCountry] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
-  const handleAddTrip = () => {
+  const { user } = useSelector(state => state.user);
+  console.log('User in AddTripScreen: ', user);
+
+  const handleAddTrip = async () => {
     if (place && country) {
       // Logic to add trip
-      if (navigation.canGoBack()) {
-      navigation.goBack();
-    }
+      setLoading(true);
+      let doc = await addDoc(tripRef, {place, country, userId: user.uid});
+      setLoading(false);
+      if (doc && doc.id) {
+        navigation.goBack();
+      }
+      // navigation.navigate('Home' as never);
     } else {
       //throw error
+      Snackbar.show({
+        text: 'Place and Country are required',
+        duration: Snackbar.LENGTH_SHORT,
+        backgroundColor: 'red',
+      });
     }
   };
   return (
@@ -66,11 +84,15 @@ const AddTripScreen = () => {
         </View>
 
         <View>
-          <TouchableOpacity
-            onPress={handleAddTrip}
-            style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
-            <Text style={styles.addTripBtnText}>Add Trip</Text>
-          </TouchableOpacity>
+          {loading ? (
+            <Loading />
+          ) : (
+            <TouchableOpacity
+              onPress={handleAddTrip}
+              style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
+              <Text style={styles.addTripBtnText}>Add Trip</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>

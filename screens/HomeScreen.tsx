@@ -15,6 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 import {signOut} from 'firebase/auth';
 import {auth} from '../config/firebase.config';
 const HomeScreen = () => {
+  // const { displayName, email } = auth.currentUser;
   const trips = [
     {
       id: 1,
