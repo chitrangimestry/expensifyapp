@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("com.facebook.react") // RN plugin
     id("org.jetbrains.kotlin.android") // Kotlin plugin
+    id("com.google.gms.google-services")
 }
 /**
  * This is the configuration block to customize your React Native Android app.

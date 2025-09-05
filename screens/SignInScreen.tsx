@@ -17,30 +17,36 @@ import {useNavigation} from '@react-navigation/native';
 import Snackbar from 'react-native-snackbar';
 import {signInWithEmailAndPassword} from 'firebase/auth';
 import {auth} from '../config/firebase.config';
-import {useDispatch, useSelector} from 'react-redux';
-import {setUserLoading} from '../redux/slices/userSlice';
+// import {
+//   useDispatch,
+//   // useSelector
+// } from 'react-redux';
+// import {setUserLoading} from '../redux/slices/userSlice';
 import Loading from '../components/Loading';
 
 const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
-  const {userLoading} = useSelector(state => state.user);
-  // const [loading, setLoading] = useState(userLoading);
-  console.log('Loading in SignInScreen: ', userLoading);
+  // const {userLoading} = useSelector(state => state.user);
+  const [loading, setLoading] = useState(false);
+  // console.log('Loading in SignInScreen: ', userLoading);
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const handleSubmit = async () => {
     if (email && password) {
       // Logic to add trip
       try {
-        dispatch(setUserLoading(true));
+        // dispatch(setUserLoading(true));
+        setLoading(true);
         await signInWithEmailAndPassword(auth, email, password);
-        dispatch(setUserLoading(false));
-        navigation.navigate('Home');
-      } catch (error) {
-        dispatch(setUserLoading(false));
+        // dispatch(setUserLoading(false));
+        setLoading(false);
+        navigation.navigate('Home' as never);
+      } catch (error: any) {
+        // dispatch(setUserLoading(false));
+        setLoading(false);
         Snackbar.show({
           text: error.message,
           duration: Snackbar.LENGTH_SHORT,
@@ -71,7 +77,7 @@ const SignInScreen = () => {
           <KeyboardAvoidingView
             behavior={Platform.OS === 'android' ? 'padding' : 'height'}
             enabled
-            keyboardVerticalOffset={150}>
+            keyboardVerticalOffset={180}>
             <ScrollView keyboardShouldPersistTaps="handled">
               <View style={styles.imageContainer}>
                 <Image
@@ -106,7 +112,7 @@ const SignInScreen = () => {
         </View>
 
         <View>
-          {userLoading ? (
+          {loading ? (
             <Loading />
           ) : (
             <TouchableOpacity

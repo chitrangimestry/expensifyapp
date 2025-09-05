@@ -18,28 +18,32 @@ import {useNavigation} from '@react-navigation/native';
 import Snackbar from 'react-native-snackbar';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import {auth} from '../config/firebase.config';
-import {useDispatch, useSelector} from 'react-redux';
-import {setUserLoading} from '../redux/slices/userSlice';
+// import {useDispatch, useSelector} from 'react-redux';
+// import {setUserLoading} from '../redux/slices/userSlice';
 import Loading from '../components/Loading';
 
 const SignUpScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  const {userLoading} = useSelector(state => state.user);
+  // const {userLoading} = useSelector(state => state.user);
   const handleSubmit = async () => {
     if (email && password) {
       // Logic to add trip
       navigation.navigate('Home' as never);
       try {
-        dispatch(setUserLoading(true));
+        // dispatch(setUserLoading(true));
+        setLoading(true);
         await createUserWithEmailAndPassword(auth, email, password);
-        dispatch(setUserLoading(false));
+        setLoading(false);
+        // dispatch(setUserLoading(false));
         navigation.navigate('Home');
       } catch (error) {
-        dispatch(setUserLoading(false));
+        // dispatch(setUserLoading(false));
+        setLoading(false);
         Snackbar.show({
           text: error.message,
           duration: Snackbar.LENGTH_SHORT,
@@ -102,7 +106,7 @@ const SignUpScreen = () => {
         </View>
 
         <View>
-          {userLoading ? (
+          {loading ? (
             <Loading />
           ) : (
             <TouchableOpacity

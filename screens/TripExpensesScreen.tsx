@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../themes';
 import EmptyList from '../components/EmptyList';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import ExpenseCard from '../components/expenseCard';
+import {getDocs, query, where} from 'firebase/firestore';
+import {expensesRef} from '../config/firebase.config';
 // import BackButton from '../components/BackButton';
 
 const TripExpensesScreen = (props: any) => {
@@ -20,38 +22,60 @@ const TripExpensesScreen = (props: any) => {
   console.log('Props in TripExpensesScreen: ', props);
   const {id, place, country} = props.route.params;
 
-  console.log('Trip Details:', id, place, country);
-  const items: {
-    id: number;
-    title: string;
-    amount: number;
-    category: 'food' | 'shopping' | 'entertainment' | 'commute' | 'other';
-  }[] = [
-    {
-      id: 1,
-      title: 'Ate Sandwich',
-      amount: 4,
-      category: 'food',
-    },
-    {
-      id: 2,
-      title: 'Bought a Jacket',
-      amount: 65,
-      category: 'shopping',
-    },
-    {
-      id: 3,
-      title: 'Watched a Movie',
-      amount: 100,
-      category: 'entertainment',
-    },
-    {
-      id: 4,
-      title: 'Bought souvenirs',
-      amount: 56,
-      category: 'shopping',
-    },
-  ];
+  // console.log('Trip Details:', id, place, country);
+  // const items: {
+  //   id: number;
+  //   title: string;
+  //   amount: number;
+  //   category: 'food' | 'shopping' | 'entertainment' | 'commute' | 'other';
+  // }[] = [
+  //   {
+  //     id: 1,
+  //     title: 'Ate Sandwich',
+  //     amount: 4,
+  //     category: 'food',
+  //   },
+  //   {
+  //     id: 2,
+  //     title: 'Bought a Jacket',
+  //     amount: 65,
+  //     category: 'shopping',
+  //   },
+  //   {
+  //     id: 3,
+  //     title: 'Watched a Movie',
+  //     amount: 100,
+  //     category: 'entertainment',
+  //   },
+  //   {
+  //     id: 4,
+  //     title: 'Bought souvenirs',
+  //     amount: 56,
+  //     category: 'shopping',
+  //   },
+  // ];
+  const [expenses, setExpenses] = useState([]);
+
+  const isFocused = useIsFocused();
+
+  const fetchExpenses = async () => {
+    const q = query(expensesRef, where('tripId', '==', id));
+    const querySnapshot = await getDocs(q);
+    let data: any = [];
+    querySnapshot.forEach(doc => {
+      data.push({...doc.data(), id: doc.id});
+    });
+    console.log('Query Snapshot:', querySnapshot);
+    setExpenses(data);
+    console.log('Trips:', data);
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchExpenses();
+    }
+  }, [isFocused]);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainViewContainer}>
@@ -78,14 +102,16 @@ const TripExpensesScreen = (props: any) => {
             </Text>
             <TouchableOpacity
               style={styles.logoutButton}
-              onPress={() => navigation.navigate('AddExpense' as never)}>
+              onPress={() =>
+                navigation.navigate('AddExpense', {id, place, country})
+              }>
               <Text>Add Expense</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.flatListViewContainer}>
             <FlatList
               style={styles.flatListItems}
-              data={items}
+              data={expenses}
               showsVerticalScrollIndicator={false}
               keyExtractor={item => item.id.toString()}
               ListEmptyComponent={

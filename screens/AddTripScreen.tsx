@@ -1,5 +1,8 @@
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -23,7 +26,7 @@ const AddTripScreen = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
-  const { user } = useSelector(state => state.user);
+  const {user} = useSelector((state:any) => state.user);
   console.log('User in AddTripScreen: ', user);
 
   const handleAddTrip = async () => {
@@ -48,8 +51,13 @@ const AddTripScreen = () => {
   return (
     <SafeAreaView style={styles.mainContainer}>
       <View style={styles.container}>
-        <View>
-          {/* <View style={styles.headerContainer}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'android' ? 'padding' : 'height'}
+          enabled
+          keyboardVerticalOffset={180}>
+          <ScrollView keyboardShouldPersistTaps="handled">
+            <View>
+              {/* <View style={styles.headerContainer}>
             <View style={styles.backButton}>
               <BackButton />
             </View>
@@ -57,31 +65,33 @@ const AddTripScreen = () => {
               Add Trip
             </Text>
           </View> */}
-          <View style={styles.imageContainer}>
-            <Image
-              style={styles.addTripImg}
-              source={require('../assets/images/Hotel-Booking-cuate.png')}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
-              Where on Earth
-            </Text>
-            <TextInput
-              value={place}
-              onChangeText={value => setPlace(value)}
-              style={styles.inputtextField}
-            />
-            <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
-              Which Country?
-            </Text>
-            <TextInput
-              value={country}
-              onChangeText={value => setCountry(value)}
-              style={styles.inputtextField}
-            />
-          </View>
-        </View>
+              <View style={styles.imageContainer}>
+                <Image
+                  style={styles.addTripImg}
+                  source={require('../assets/images/Hotel-Booking-cuate.png')}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
+                  Where on Earth
+                </Text>
+                <TextInput
+                  value={place}
+                  onChangeText={value => setPlace(value)}
+                  style={styles.inputtextField}
+                />
+                <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
+                  Which Country?
+                </Text>
+                <TextInput
+                  value={country}
+                  onChangeText={value => setCountry(value)}
+                  style={styles.inputtextField}
+                />
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
 
         <View>
           {loading ? (

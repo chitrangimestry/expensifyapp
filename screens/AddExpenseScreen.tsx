@@ -1,5 +1,8 @@
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -12,26 +15,57 @@ import {colors} from '../themes';
 // import BackButton from '../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
 import {categories} from '../constants';
+import Snackbar from 'react-native-snackbar';
+import {addDoc} from 'firebase/firestore';
+import {expensesRef} from '../config/firebase.config';
+import Loading from '../components/Loading';
+// import {useSelector} from 'react-redux';
 
-const AddExpenseScreen = () => {
+const AddExpenseScreen = (props: any) => {
+  let {id} = props.route.params;
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  // const {user} = useSelector(state => state.user);
 
-  const handleAddExpense = () => {
+  const handleAddExpense = async () => {
     if (title && amount && category) {
       // Logic to add trip
-      navigation.goBack();
+      // navigation.goBack();
+      setLoading(true);
+      let doc = await addDoc(expensesRef, {
+        title,
+        amount,
+        category,
+        tripId: id,
+      });
+      console.log('Doc: ', doc);
+
+      setLoading(false);
+      if (doc && doc.id) {
+        navigation.goBack();
+      }
     } else {
       //throw error
+      Snackbar.show({
+        text: 'Title, Amount and Category are required',
+        duration: Snackbar.LENGTH_SHORT,
+        backgroundColor: 'red',
+      });
     }
   };
   return (
     <SafeAreaView style={styles.mainContainer}>
       <View style={styles.container}>
-        <View>
-          {/* <View style={styles.headerContainer}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'android' ? 'padding' : 'height'}
+          enabled
+          keyboardVerticalOffset={180}>
+          <ScrollView keyboardShouldPersistTaps="handled">
+            <View>
+              {/* <View style={styles.headerContainer}>
             <View style={styles.backButton}>
               <BackButton />
             </View>
@@ -39,60 +73,68 @@ const AddExpenseScreen = () => {
               Add Trip
             </Text>
           </View> */}
-          <View style={styles.imageContainer}>
-            <Image
-              style={styles.addTripImg}
-              source={require('../assets/images/Ecommerce-webpage-cuate.png')}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
-              For What?
-            </Text>
-            <TextInput
-              value={title}
-              onChangeText={value => setTitle(value)}
-              style={styles.inputtextField}
-            />
-            <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
-              How Much?
-            </Text>
-            <TextInput
-              value={amount}
-              onChangeText={value => setAmount(value)}
-              style={styles.inputtextField}
-            />
-          </View>
-          <View style={styles.categoryContainer}>
-            <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
-              Category
-            </Text>
-            <View style={styles.categoryBtnContainer}>
-              {categories.map(cat => {
-                let bgColor = '#ffffff';
+              <View style={styles.imageContainer}>
+                <Image
+                  style={styles.addTripImg}
+                  source={require('../assets/images/Ecommerce-webpage-cuate.png')}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
+                  For What?
+                </Text>
+                <TextInput
+                  value={title}
+                  onChangeText={value => setTitle(value)}
+                  style={styles.inputtextField}
+                />
+                <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
+                  How Much?
+                </Text>
+                <TextInput
+                  value={amount}
+                  onChangeText={value => setAmount(value)}
+                  style={styles.inputtextField}
+                />
+              </View>
+              <View style={styles.categoryContainer}>
+                <Text style={[{color: colors.heading}, styles.inputTextTxt]}>
+                  Category
+                </Text>
+                <View style={styles.categoryBtnContainer}>
+                  {categories.map(cat => {
+                    let bgColor = '#ffffff';
 
-                if (cat.value === category) {
-                  bgColor = '#a4c7aaff';
-                }
-                return (
-                  <TouchableOpacity
-                    onPress={() => setCategory(cat.value)}
-                    key={cat.value}
-                    style={[styles.categoryBtn, {backgroundColor: bgColor}]}>
-                    <Text>{cat.title}</Text>
-                  </TouchableOpacity>
-                );
-              })}
+                    if (cat.value === category) {
+                      bgColor = '#a4c7aaff';
+                    }
+                    return (
+                      <TouchableOpacity
+                        onPress={() => setCategory(cat.value)}
+                        key={cat.value}
+                        style={[
+                          styles.categoryBtn,
+                          {backgroundColor: bgColor},
+                        ]}>
+                        <Text>{cat.title}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
-
+          </ScrollView>
+        </KeyboardAvoidingView>
         <View>
-          <TouchableOpacity
-            onPress={handleAddExpense}
-            style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
-            <Text style={styles.addTripBtnText}>Add Expense</Text>
-          </TouchableOpacity>
+          {loading ? (
+            <Loading />
+          ) : (
+            <TouchableOpacity
+              onPress={handleAddExpense}
+              style={[styles.addTripBtn, {backgroundColor: colors.button}]}>
+              <Text style={styles.addTripBtnText}>Add Expense</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>

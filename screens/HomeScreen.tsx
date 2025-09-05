@@ -5,70 +5,104 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../themes';
 import randomImage from '../assets/images/RandomImage';
 import EmptyList from '../components/EmptyList';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {signOut} from 'firebase/auth';
-import {auth} from '../config/firebase.config';
+import {auth, tripRef} from '../config/firebase.config';
+import {useSelector} from 'react-redux';
+import { getDocs, query, where } from 'firebase/firestore';
+
+interface Trip {
+  id: string;
+  place: string;
+  country: string;
+  userId: string;
+}
+
+
 const HomeScreen = () => {
+  const [trips, setTrips] = useState<Trip[]>([]);
   // const { displayName, email } = auth.currentUser;
-  const trips = [
-    {
-      id: 1,
-      place: 'Amsterdam',
-      country: 'Netherlands',
-    },
-    {
-      id: 2,
-      place: 'Prague',
-      country: 'Czech Republic',
-    },
-    {
-      id: 3,
-      place: 'Barcelona',
-      country: 'Spain',
-    },
-    {
-      id: 4,
-      place: 'New York',
-      country: 'USA',
-    },
-    {
-      id: 5,
-      place: 'London',
-      country: 'UK',
-    },
-    {
-      id: 6,
-      place: 'Dublin',
-      country: 'Ireland',
-    },
-    {
-      id: 7,
-      place: 'Tokyo',
-      country: 'Japan',
-    },
-    {
-      id: 8,
-      place: 'Paris',
-      country: 'France',
-    },
-    {
-      id: 9,
-      place: 'Edinburgh',
-      country: 'Scotland',
-    },
-    {
-      id: 10,
-      place: 'Cardigan',
-      country: 'Wales',
-    },
-  ];
+  // const trips = [
+  //   {
+  //     id: 1,
+  //     place: 'Amsterdam',
+  //     country: 'Netherlands',
+  //   },
+  //   {
+  //     id: 2,
+  //     place: 'Prague',
+  //     country: 'Czech Republic',
+  //   },
+  //   {
+  //     id: 3,
+  //     place: 'Barcelona',
+  //     country: 'Spain',
+  //   },
+  //   {
+  //     id: 4,
+  //     place: 'New York',
+  //     country: 'USA',
+  //   },
+  //   {
+  //     id: 5,
+  //     place: 'London',
+  //     country: 'UK',
+  //   },
+  //   {
+  //     id: 6,
+  //     place: 'Dublin',
+  //     country: 'Ireland',
+  //   },
+  //   {
+  //     id: 7,
+  //     place: 'Tokyo',
+  //     country: 'Japan',
+  //   },
+  //   {
+  //     id: 8,
+  //     place: 'Paris',
+  //     country: 'France',
+  //   },
+  //   {
+  //     id: 9,
+  //     place: 'Edinburgh',
+  //     country: 'Scotland',
+  //   },
+  //   {
+  //     id: 10,
+  //     place: 'Cardigan',
+  //     country: 'Wales',
+  //   },
+  // ];
+  const {user} = useSelector((state : any) => state.user);
   const navigation = useNavigation();
+
+  const isFocused = useIsFocused();
+
+  const fetchTrips = async () => {
+    const q = query(tripRef, where('userId', '==', user.uid));
+    const querySnapshot = await getDocs(q);
+    let data: any = [];
+    querySnapshot.forEach(doc => {
+      data.push({...doc.data(), id: doc.id});
+    });
+    console.log('Query Snapshot:', querySnapshot);
+    setTrips(data);
+    console.log('Trips:', data);
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+       fetchTrips();
+    }
+  }, [isFocused]);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -114,7 +148,7 @@ const HomeScreen = () => {
             ListEmptyComponent={
               <EmptyList message={"You haven't added any trips yet"} />
             }
-            columnWrapperStyle={{justifyContent: 'space-between'}}
+            columnWrapperStyle={{justifyContent: 'space-between'} as ViewStyle}
             renderItem={({item}) => {
               return (
                 <TouchableOpacity
